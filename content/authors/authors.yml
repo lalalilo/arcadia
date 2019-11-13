@@ -1,0 +1,25 @@
+- name: Lalilo Team
+  bio: |
+    Written with ❤ by the Lalilo team
+  avatar: ./avatars/lalilo.png
+  featured: true
+  social:
+    - name: github
+      url: https://github.com/lalalilo
+    - name: twitter
+      url: https://twitter.com/LaliloApp
+    - name: linkedin
+      url: https://www.linkedin.com/company/lalilo/
+
+- name: Nicolas Girault
+  bio: |
+    He has no hair but a big heart. Nico is Lalilo's CTO!
+  avatar: ./avatars/nico.jpg
+  featured: false
+  social:
+    - name: github
+      url: https://github.com/nicgirault
+    - name: twitter
+      url: https://twitter.com/nicgirault
+    - name: linkedin
+      url: https://www.linkedin.com/in/nicgirault/
