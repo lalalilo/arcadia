@@ -2226,10 +2226,10 @@ aws-sign2@~0.7.0:
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.7.0.tgz#b46e890934a9591f2d2f6f86d7e6a9f1b3fe76a8"
   integrity sha1-tG6JCTSpWR8tL2+G1+ap8bP+dqg=
 
-aws-spa@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/aws-spa/-/aws-spa-2.0.0.tgz#16efb5b06b5b2230bf0d99254dd669a6c4f9a0cf"
-  integrity sha512-7+MdfBhwLbviZLuo4TaOBF6u1ikbbvQoKnJ0M9IBtYQWU4Bj1fL20cy7Z4IfodZJnReEyiNzsITyLZS3U9A/Hw==
+aws-spa@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/aws-spa/-/aws-spa-2.0.1.tgz#c97cd3b803c1d3ef2f16670a80a128473cdb0cec"
+  integrity sha512-eUC/LQ0Rxv7Ehq/+0GE8M12oyoy5O8dMQ5ZvPkDhK2s1gJh4JQE4hMzY/Qj+QSDYIjuNdU30B24xq77WGBFmpQ==
   dependencies:
     adm-zip "^0.4.13"
     aws-sdk "^2.569.0"
