@@ -13,10 +13,10 @@
     "@narative/gatsby-theme-novela": "^0.*",
     "gatsby": "^2.13.41",
     "gatsby-plugin-manifest": "^2.2.4",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   },
   "devDependencies": {
-    "aws-spa": "^1.6.1"
+    "aws-spa": "^2.0.0"
   }
 }
