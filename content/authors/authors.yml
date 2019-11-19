@@ -23,3 +23,20 @@
       url: https://twitter.com/nicgirault
     - name: linkedin
       url: https://www.linkedin.com/in/nicgirault/
+
+- name: Kenzo Naito
+  bio: |
+    Self taught dev and ultra distance cyclist
+  avatar: ./avatars/kenzo.jpg
+  featured: false
+  social:
+    - name: github
+      url: https://github.com/NaitoKenzo
+    - name: linkedin
+      url: https://www.linkedin.com/in/kenzo-naito-2b271952
+
+- name: Fabien Trestour and Kenzo Naito
+  bio: |
+    👺 & 🏋️‍♀️
+  # avatar: ./avatars/kenzo.jpg
+  featured: false
