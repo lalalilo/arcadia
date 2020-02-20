@@ -1,0 +1,287 @@
+---
+title: How to type a saga
+author: Fabien Trestour
+date: 2020-02-19
+hero: ./images/header.png
+excerpt: Redux-saga is a very useful tool to have in a front-end stack. Typing them properly is not obvious though. Here's a guide on how to do it!
+---
+
+# What are sagas
+
+Sagas are functions that return generators:
+
+```ts
+function* hello(foo: string) {}
+// -> (foo: string) => Generator
+```
+
+Even if `redux-saga` relies on other concepts (like effects), typing a saga mostly boils down to typing a generator.
+
+# Typing a generator
+
+Generators typing was improved in [TS 3.6](https://devblogs.microsoft.com/typescript/announcing-typescript-3-6/#stricter-generators).
+The current `Generator` type has three type parameters. Some examples will help finding out what they describe.
+
+## Inferred type for a simple generator factory
+
+```ts
+function* thisIsAGenerator(foo: boolean) {
+  yield "hello world";
+  return 0;
+}
+// -> Generator<string, number, unknown>
+```
+
+This example allows us to understand what the first two type arguments stand for in a generator type:
+
+- The first one is the type of the values we yield. We'll call it `YieldType`
+- The second one is the type of the generator's return value. We'll call it `ReturnType`
+
+If values of different types are yielded, `YieldType` is the union of each possible type
+
+```ts
+function* thisIsYetAnotherGenerator(foo: string) {
+  yield "hello world";
+  yield ["foo", "bar"];
+  return 0;
+}
+// -> Generator<"hello world" | string[], number, unknown>
+```
+
+## Where inferred generator types fall short
+
+Consider this generator:
+
+```ts
+function* thisOneIsABitDifferent(foo: string) {
+  const bar = yield "baz";
+  console.log(bar);
+  return 0;
+}
+// -> Generator<string, number, unknown>
+```
+
+Inspecting the type of the bar value turns out to be quite weird.
+Indeed, it is of type `any` while it could be expected to be of type `string`.
+
+Having `any` values pop somewhere in TS code is really a pain since it limits a lot the help provided by typing later in the function.
+Why can't TS infer the type of `bar` automatically?
+
+To understand it, it is necessary to dig a bit deeper in generator behaviour.
+
+Let's consider this code from [the TS 3.6 release blogpost](https://devblogs.microsoft.com/typescript/announcing-typescript-3-6/#stricter-generators):
+
+```ts
+function* counter() {
+  let i = 0;
+  while (true) {
+    const stop = yield i++;
+    if (stop) {
+      break;
+    }
+  }
+  return "done!";
+}
+```
+
+What is the type of `stop` here? If your answer is `number`, you're wrong.
+
+Actually, `stop` could a boolean, a string, an object. From all we know according to this code, it could be of _any_ type. It depends on how the generator is used.
+
+## The `yield` keyword
+
+Let's refer to [`yield`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield)'s documentation:
+
+> The yield keyword is used to pause and resume a generator function.
+
+The yielded value defines the new current value of the generator. It can be seen in the example they provide:
+
+```ts
+function* foo(index) {
+  while (index < 2) {
+    yield index++;
+  }
+}
+
+const iterator = foo(0);
+
+console.log(iterator.next().value);
+// expected output: 0
+
+console.log(iterator.next().value);
+// expected output: 1
+```
+
+What is the stored value when the result of the `yield` operator is saved then? **The saved value actually is the argument provided to the `iterator.next` function.**
+
+Using the previously defined `counter` generator:
+
+```ts
+const iter = counter();
+let curr = iter.next();
+while (!curr.done) {
+  console.log(curr.value);
+  curr = iter.next(curr.value === 5);
+}
+console.log(curr.value.toUpperCase());
+
+// prints:
+//
+// 0
+// 1
+// 2
+// 3
+// 4
+// 5
+// done!
+```
+
+Here, `next` is called with a boolean value (`curr.value === 5`). Which means `stop` in the definition of `counter` is of type `boolean`.
+
+Knowing how a generator is used is necessary to know what type `yield` operations return.
+
+## The full typing of a generator
+
+It is now possible to fully type a generator:
+
+```ts
+function* counter(): Generator<number, "done!", boolean>;
+```
+
+- `counter` successive values are numbers
+- `counter` returns `"done!"` when there are no new values to generate
+- `counter` takes boolean values as an argument to generate new values
+
+This example will not compile since there's a conflict on the type of `bar`:
+
+```ts
+function* thisIsAWrongSaga(foo: string): Generator<string, number, boolean> {
+  const bar: string = yield "baz";
+  // Type 'boolean' is not assignable to type 'string'.
+  console.log(bar);
+  return 0;
+}
+```
+
+# Typing a saga
+
+Everything up to this point works for any kind of generator factory. However, `redux-sagas` is not limited to writing generator factories.
+The library does all the heavy lifting related to orchestrating the sagas (i.e. running effects and calling `next`).
+
+## Using `StrictEffect`
+
+Sagas introduce the concept of [effects](https://redux-saga.js.org/docs/basics/DeclarativeEffects.html).
+Here is the inferred type for a saga that uses the `delay` effect:
+
+```ts
+function* thisIsASaga(foo: string) {
+  yield delay(1000);
+  return 0;
+}
+// -> Generator<SimpleEffect<"CALL", CallEffectDescriptor<true>>, number, unknown>
+```
+
+Here's a quick look at `@types/redux-saga`'s definition of a `SimpleEffect`:
+
+```ts
+export interface Effect<T = any, P = any> {
+  "@@redux-saga/IO": true;
+  combinator: boolean;
+  type: T;
+  payload: P;
+}
+
+export interface SimpleEffect<T, P = any> extends Effect<T, P> {
+  combinator: false;
+}
+```
+
+`redux-saga` basically yields simple objects describing what actions should be done without actually doing them.
+
+That's why sagas are supposed to be easily testable.
+Limiting saga yields to effects (including `call` effects) allows to test values that do not depend on the implementation of external functions.
+
+`@types/redux-saga` provides a `StrictEffect` type that can be used in generator types to allow nothing but effects in yields:
+
+```ts
+const wiiiiiiiiii = () => "hihihihihi";
+function* thisIsAWrongSaga(foo: string): Generator<StrictEffect, number, any> {
+  yield wiiiiiiiiii();
+  // Type 'string' is not assignable to type 'StrictEffect<any, any>'.
+  return 0;
+}
+```
+
+## Handling forks
+
+Some effects are supposed to return specific values. See [`fork`](https://redux-saga.js.org/docs/api/)'s documentation for instance:
+
+> The result of yield fork(fn ...args) is a Task object. An object with some useful methods and properties.
+
+Knowing how to type a generator, this is now easy to handle:
+
+```ts
+function* thisIsASagaThatForks(
+  foo: string
+): Generator<StrictEffect, number, Task> {
+  const potato = yield fork(function*() {
+    yield "Bepis";
+  });
+  cancel(potato);
+
+  return 0;
+}
+```
+
+# Limitation of this typing process
+
+This way of typing comes with a few constraints.
+One of them is the handling of different yield return types.
+
+```ts
+const createPotato = () => "potato";
+const createTomato = () => false;
+
+export function* thisYieldsManyStuff(): Generator<
+  StrictEffect,
+  string,
+  string | boolean
+> {
+  const potato = yield call(createPotato);
+  const tomato = yield call(createTomato);
+  return "yay!";
+}
+```
+
+`potato` and `tomato` will both have the same type which is `string | boolean` .
+
+Splitting sagas in smaller bits should allow to overcome this issue in most cases.
+
+## The `yield*` operator
+
+This is `yield*`'s defintion:
+
+> The `yield*` expression is used to delegate to another generator or iterable object.
+
+This operator allows to chain generators. An added bonus is that it provides a good typing of the result value:
+
+```ts
+function* secondaryGenerator() {
+  yield delay(1000);
+  return true;
+}
+// -> Generator<SimpleEffect<"CALL", CallEffectDescriptor<true>>, boolean, unknown>
+
+function* mainGenerator(): Generator<StrictEffect, void, string> {
+  const foo = yield call(wiiiiiiiiii); // string
+  const secondaryGeneratorResult = yield* secondaryGenerator(); // boolean
+  console.log(secondaryGeneratorResult);
+}
+```
+
+Combining this with proper saga splitting should allow you to get a perfect typing every single time!
+
+# Practice !
+
+[Here](https://codesandbox.io/s/adoring-mayer-umr13) is a small typescript sandbox with some of the examples given in this article.
+Playing with it may help better understanding how all of this. As with a lot of things, practice makes perfect!
