@@ -1,10 +1,12 @@
 ---
-title: How to type a saga
+title: Redux-saga and Typescript, doing it right.
 author: Fabien Trestour
 date: 2020-02-19
 hero: ./images/header.png
-excerpt: Redux-saga is a very useful tool to have in a front-end stack. Typing them properly is not obvious though. Here's a guide on how to do it!
+excerpt: Redux-saga is a widely used library that help to deal with side effects in a front-end app. Typing sagas properly is not obvious though. Here's a guide on how to do it!
 ---
+
+_Redux-saga is a widely used library that help to deal with side effects in a front-end app. Typing sagas properly is not obvious though. Here's a guide on how to do it!_
 
 # What are sagas
 
@@ -165,7 +167,7 @@ function* thisIsAWrongSaga(foo: string): Generator<string, number, boolean> {
 
 # Typing a saga
 
-Everything up to this point works for any kind of generator factory. However, `redux-sagas` is not limited to writing generator factories.
+Everything up to this point works for any kind of generator factory. However, `redux-saga` is not limited to writing generator factories.
 The library does all the heavy lifting related to orchestrating the sagas (i.e. running effects and calling `next`).
 
 ## Using `StrictEffect`
