@@ -3,10 +3,10 @@ title: Redux-saga and Typescript, doing it right.
 author: Fabien Trestour
 date: 2020-02-19
 hero: ./images/header.png
-excerpt: Redux-saga is a widely used library that help to deal with side effects in a front-end app. Typing sagas properly is not obvious though. Here's a guide on how to do it!
+excerpt: Redux-saga is a widely used library that helps to deal with side effects in a front-end app. Typing sagas properly is not obvious though. Here's a guide on how to do it!
 ---
 
-_Redux-saga is a widely used library that help to deal with side effects in a front-end app. Typing sagas properly is not obvious though. Here's a guide on how to do it!_
+_Redux-saga is a widely used library that helps to deal with side effects in a front-end app. Typing sagas properly is not obvious though. Here's a guide on how to do it!_
 
 # What are sagas
 
@@ -22,7 +22,7 @@ Even if `redux-saga` relies on other concepts (like effects), typing a saga most
 # Typing a generator
 
 Generators typing was improved in [TS 3.6](https://devblogs.microsoft.com/typescript/announcing-typescript-3-6/#stricter-generators).
-The current `Generator` type has three type parameters. Some examples will help finding out what they describe.
+The current `Generator` type has three type parameters. Some examples will help you in finding out what they describe.
 
 ## Inferred type for a simple generator factory
 
@@ -64,7 +64,7 @@ function* thisOneIsABitDifferent(foo: string) {
 ```
 
 Inspecting the type of the bar value turns out to be quite weird.
-Indeed, it is of type `any` while it could be expected to be of type `string`.
+Indeed, it is of type `any` when it could be expected to be of type `string`.
 
 Having `any` values pop somewhere in TS code is really a pain since it limits a lot the help provided by typing later in the function.
 Why can't TS infer the type of `bar` automatically?
@@ -283,7 +283,7 @@ function* mainGenerator(): Generator<StrictEffect, void, string> {
 
 Combining this with proper saga splitting should allow you to get a perfect typing every single time!
 
-# Practice !
+# Practice!
 
 [Here](https://codesandbox.io/s/adoring-mayer-umr13) is a small typescript sandbox with some of the examples given in this article.
-Playing with it may help better understanding how all of this. As with a lot of things, practice makes perfect!
+Playing with it may help better understanding how all of this works. As with a lot of things, practice makes perfect!
