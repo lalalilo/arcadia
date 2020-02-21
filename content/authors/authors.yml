@@ -35,6 +35,16 @@
     - name: linkedin
       url: https://www.linkedin.com/in/kenzo-naito-2b271952
 
+- name: Fabien Trestour
+  bio: |
+    The guy with the mustache
+  avatar: ./avatars/fabien.jpeg
+  featured: false
+  social:
+    - name: github
+      url: https://github.com/fTrestour
+    - name: linkedin
+      url: https://www.linkedin.com/in/fabien-trestour/
 - name: Fabien Trestour and Kenzo Naito
   bio: |
     👺 & 🏋️‍♀️
